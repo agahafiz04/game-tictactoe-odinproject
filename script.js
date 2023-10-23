@@ -349,10 +349,3 @@ const endGame = (function () {
 
   return { removeBoard, congratsPlayer };
 })();
-
-// 1. FIX ABOVE CODE! (V)
-// 2. Give the array some lesson (V)
-// 3. And then give the logic to win the game based on row or a tie (V)
-// 4. Give some ui interfaces to create name and congratulate the winners (V)
-// 5. Reset Button
-// 6. Try to create an AI Artifical Intellegensi Hahaha to enemy (Optionals)
