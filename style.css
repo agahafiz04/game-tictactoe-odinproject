@@ -1,0 +1,225 @@
+/* CSS Reset & Misc */
+@import url("https://fonts.googleapis.com/css2?family=Autour+One&display=swap");
+
+:root {
+  --color-one: #ff0000;
+  --color-two: #232d3f; /* USED */
+  --color-three: #c2f0e3; /* USED */
+  --color-four: #11ac97; /* USED */
+  --color-five: #139989; /* USED */
+
+  --color-white: white;
+  --color-black: black;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  box-sizing: border-box;
+  font-size: 1.6rem;
+  min-height: 100vh;
+}
+
+img,
+svg,
+video,
+picture {
+  display: block;
+  max-width: 100%;
+}
+
+i {
+  color: var(--color-three);
+}
+
+/* Styling Start Here */
+body {
+  font-family: "Autour One", sans-serif;
+  display: grid;
+  grid-template-rows: 150px 1fr 50px;
+  background-color: var(--color-five);
+}
+
+body > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Header */
+
+.header {
+  text-align: center;
+  gap: 10px;
+  font-size: 0.8em;
+
+  background-color: var(--color-two);
+  color: var(--color-four);
+}
+
+/* Footer */
+.footer {
+  background-color: var(--color-two);
+  color: var(--color-four);
+}
+
+.footer p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Board */
+.board {
+  justify-content: space-around;
+}
+
+/* Info Board */
+.info-board {
+  text-align: center;
+}
+
+/* Tic-Tac-Board */
+.tic-tac-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  place-self: center;
+  /* margin: auto; */
+
+  width: clamp(400px, 50vw, 500px);
+  height: clamp(400px, 50vw, 500px);
+}
+
+.square-box {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-five);
+}
+
+.square-box:hover {
+  background-color: var(--color-two);
+}
+
+.square-box p {
+  font-size: 10rem;
+  font-weight: bolder;
+  transform: scale(1.2, 1);
+  position: absolute;
+}
+
+.square-box:not(:nth-last-child(-n + 3)) {
+  border-bottom: 7px solid var(--color-three);
+}
+
+.square-box:not(:nth-child(3n)) {
+  border-right: 7px solid var(--color-three);
+}
+
+/* Player */
+.winner {
+  text-align: center;
+  color: var(--color-white);
+}
+
+#p1 {
+  color: var(--color-one);
+}
+
+#p2 {
+  color: yellow;
+}
+
+/* Main Menu */
+.main-menu {
+  position: absolute;
+  height: 500px;
+  width: 450px;
+  font-size: 2.2rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  border: 5px solid var(--color-four);
+  border-radius: 25px;
+  background: var(--color-three);
+}
+
+.main-menu button {
+  border-radius: 15px;
+  width: 50%;
+  margin: 0 auto;
+  border: 3px solid var(--color-white);
+  padding: 7.5px 10px;
+  font-family: inherit;
+  background-color: var(--color-four);
+  cursor: pointer;
+  color: white;
+}
+
+.main-menu button:hover {
+  background-color: var(--color-three);
+}
+
+.main-menu ul {
+  list-style: none;
+  width: 100%;
+}
+
+.main-menu ul li {
+  margin-bottom: 55px;
+  text-align: center;
+}
+
+.main-menu ul li h1 {
+  margin-top: 10px;
+  font-size: 2rem;
+}
+
+.main-menu ul li:nth-child(1) h1 {
+  color: red;
+}
+
+/* .main-menu ul li:nth-child(2) {
+  background-color: black;
+} */
+
+.main-menu ul li:nth-child(3) h1 {
+  color: rgb(249, 253, 0);
+}
+
+.main-menu label {
+  color: var(--color-five);
+  display: block;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.main-menu input {
+  margin: 0 auto;
+  display: block;
+  width: 75%;
+  padding: 10px;
+  border-radius: 25px;
+  border: 2px solid var(--color-five);
+  outline: none;
+  font-family: inherit;
+  text-align: center;
+}
