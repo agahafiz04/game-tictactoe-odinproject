@@ -1,3 +1,6 @@
+let playerOne;
+let playerTwo;
+
 // Prototypal Inheritance Object Factory Function
 // Create Player Factory
 function createPlayer(name, mark) {
@@ -19,22 +22,45 @@ function createPlayerProperties(name, mark) {
   return Object.assign({}, user, { getScore, giveScore });
 }
 
-let playerOne;
-let playerTwo;
-
 // Revealing Module Pattern
 const mainMenu = (function () {
-  const buttonEl = document.querySelector("button");
-  console.log(buttonEl);
+  const choosePlayerEl = document.querySelector(".choose-player");
+  const chooseComputerEl = document.querySelector(".choose-computer");
+  const chooseThePlayerEl = document.querySelector(".choose-the-player");
+
+  const formUlEl = document.querySelector(".form-ul");
+  const buttonStart = document.querySelector(".button-start");
+  const buttonBack = document.querySelector(".button-back");
+
+  choosePlayerEl.addEventListener("click", () => {
+    formUlEl.setAttribute("style", "display:unset");
+    buttonStart.setAttribute("style", "display:unset");
+    buttonBack.setAttribute("style", "display:unset");
+
+    choosePlayerEl.setAttribute("style", "display:none");
+    chooseComputerEl.setAttribute("style", "display:none");
+    chooseThePlayerEl.setAttribute("style", "display:none");
+  });
+
+  buttonBack.addEventListener("click", () => {
+    formUlEl.setAttribute("style", "display:none");
+    buttonStart.setAttribute("style", "display:none");
+    buttonBack.setAttribute("style", "display:none");
+
+    choosePlayerEl.setAttribute("style", "display:unset");
+    chooseComputerEl.setAttribute("style", "display:unset");
+    chooseThePlayerEl.setAttribute("style", "display:unset");
+  });
+
+  const buttonEl = document.querySelector(".button-start");
+
   const menuModalEl = document.querySelector(".main-menu");
   const inputEl1 = document.querySelector("#name-1");
   const inputEl2 = document.querySelector("#name-2");
 
   buttonEl.addEventListener("click", function () {
     if (inputEl1.value == "" || inputEl2.value == "") {
-      console.log("Insert Name!");
     } else if (!inputEl1.value == "" && !inputEl2.value == "") {
-      console.log("Good");
       createObject();
     }
   });
@@ -45,7 +71,6 @@ const mainMenu = (function () {
 
     menuModalEl.remove();
 
-    console.log("test");
     startGame.createBoard();
     infoBoard.createInfoBoard();
     gameBoard.squareBoxEvent();
@@ -101,13 +126,18 @@ const gameBoard = (function () {
 
   let rows = board.rows;
   let columns = board.columns;
-  const gameBoard = [];
+  let gameBoard = [];
 
   let arrayValue = 0;
-  for (let i = 0; i < rows; i++) {
-    gameBoard[i] = [];
-    for (let j = 0; j < columns; j++) {
-      gameBoard[i][j] = arrayValue++;
+
+  initialGameBoardArray();
+
+  function initialGameBoardArray() {
+    for (let i = 0; i < rows; i++) {
+      gameBoard[i] = [];
+      for (let j = 0; j < columns; j++) {
+        gameBoard[i][j] = arrayValue++;
+      }
     }
   }
 
@@ -115,7 +145,6 @@ const gameBoard = (function () {
 
   function squareBoxEvent() {
     const squareBoxEl = document.querySelectorAll(".square-box");
-    console.log(squareBoxEl);
 
     squareBoxEl.forEach((el) => {
       el.addEventListener("click", function () {
@@ -126,8 +155,6 @@ const gameBoard = (function () {
     });
 
     function handlerRemover() {
-      console.log("removed");
-
       squareBoxEl.forEach((el) => {
         el.removeEventListener("click", squareBoxClick);
       });
@@ -170,7 +197,7 @@ const gameBoard = (function () {
     }
   }
 
-  return { gameBoard, squareBoxEvent };
+  return { gameBoard, myElArray, squareBoxEvent, initialGameBoardArray };
 })();
 
 // Player Turn Module
@@ -219,7 +246,7 @@ const infoBoard = (function () {
 
 // WinCondition Module
 const winCondition = (function () {
-  const boardArray = gameBoard.gameBoard;
+  let boardArray = gameBoard.gameBoard;
   const boardCells = startGame.getBoard();
 
   let theWinner;
@@ -240,7 +267,7 @@ const winCondition = (function () {
   };
 
   const verticalCheck = () => {
-    const newArray = [];
+    let newArray = [];
 
     for (let i = 0; i < boardCells.columns; i++) {
       newArray[i] = [];
@@ -255,16 +282,18 @@ const winCondition = (function () {
     for (let i = 0; i < newArray.length; i++) {
       if (newArray[i].every(verticalCheckX)) {
         theWinner = "Player One";
+        newArray = [];
         return true;
       } else if (newArray[i].every(verticalCheckO)) {
         theWinner = "Player Two";
+        newArray = [];
         return true;
       }
     }
   };
 
   const diagonalCheck = () => {
-    const newArray = [];
+    let newArray = [];
 
     newArray.push([boardArray[0][2], boardArray[1][1], boardArray[2][0]]);
     newArray.push([boardArray[0][0], boardArray[1][1], boardArray[2][2]]);
@@ -275,9 +304,13 @@ const winCondition = (function () {
     for (let i = 0; i < newArray.length; i++) {
       if (newArray[i].every(diagonalCheckX)) {
         theWinner = "Player One";
+        newArray = [];
+
         return true;
       } else if (newArray[i].every(diagonalCheckO)) {
         theWinner = "Player Two";
+        newArray = [];
+
         return true;
       }
     }
@@ -297,14 +330,15 @@ const winCondition = (function () {
     if (horizontalCheck() || diagonalCheck() || verticalCheck()) {
       endGame.removeBoard();
       endGame.congratsPlayer();
+      endGame.createButton();
       return "win";
     } else if (!initialCheck()) {
       endGame.removeBoard();
-      endGame.congratsPlayer();
-      console.log("A Draw!");
+      endGame.draw();
+      endGame.createButton();
+
       return "draw";
     } else {
-      console.log("init");
       return "init";
     }
   };
@@ -313,39 +347,104 @@ const winCondition = (function () {
     return theWinner;
   };
 
-  return { check, getWinner };
+  const setWinner = () => {
+    theWinner = null;
+  };
+
+  return { check, getWinner, setWinner };
 })();
 
 //  EndGame Module
 const endGame = (function () {
   const boardEl = document.querySelector(".board");
+  const divEl = document.createElement("div");
+  divEl.classList.add("end-game");
+
+  const infoBoardEl = document.querySelector(".info-board");
+  const ticTacBoard = document.querySelector(".tic-tac-board");
+  const scoreBoard = document.querySelector(".score-board");
 
   function removeBoard() {
-    while (boardEl.firstChild) {
-      boardEl.removeChild(boardEl.firstChild);
-    }
+    // while (boardEl.firstChild) {
+    //    boardEl.removeChild(boardEl.firstChild);
+    // }
+    infoBoardEl.classList.add("hide");
+    ticTacBoard.classList.add("hide");
+    scoreBoard.classList.add("hide");
+
+    gameBoard.gameBoard = [];
+    gameBoard.initialGameBoardArray();
+    gameBoard.myElArray = [];
+
+    boardEl.append(divEl);
+  }
+
+  function createButton() {
+    winCondition.setWinner();
+
+    const buttonEl1 = document.createElement("button");
+    const buttonEl2 = document.createElement("button");
+
+    buttonEl1.classList.add("button-reset");
+    buttonEl2.classList.add("button-menu");
+
+    buttonEl1.textContent = "Play Again?";
+    buttonEl2.textContent = "Main Menu";
+
+    divEl.append(buttonEl1, buttonEl2);
+
+    buttonEl1.addEventListener("click", () => {
+      const squareBox = document.querySelectorAll(".square-box");
+
+      squareBox.forEach((item) => {
+        item.childNodes.forEach((item) => {
+          item.textContent = "";
+        });
+      });
+
+      infoBoardEl.classList.remove("hide");
+      ticTacBoard.classList.remove("hide");
+      scoreBoard.classList.remove("hide");
+
+      infoBoard.createInfoBoard();
+      gameBoard.squareBoxEvent();
+
+      const winnerEl = document.querySelector(".winner");
+
+      winnerEl.remove();
+
+      buttonEl1.remove();
+      buttonEl2.remove();
+      divEl.remove();
+    });
+
+    buttonEl2.addEventListener("click", () => {
+      location.reload();
+    });
   }
 
   function congratsPlayer() {
     const congratsTitle = document.createElement("h1");
     congratsTitle.classList.add("winner");
-    boardEl.append(congratsTitle);
-
-    console.log(winCondition.getWinner());
+    divEl.append(congratsTitle);
 
     if (winCondition.getWinner() == "Player One") {
-      congratsTitle.innerHTML = `Congratulation <span id="p1">${playerOne.name}</span>, You Won The Game!`;
+      congratsTitle.innerHTML = `Congratulation <br><span id="p1">${playerOne.name}</span><br> You Won The Game!`;
     } else if (winCondition.getWinner() == "Player Two") {
-      congratsTitle.innerHTML = `Congratulation <span id="p2">${playerTwo.name}<span>, You Won The Game!`;
+      congratsTitle.innerHTML = `Congratulation <br><span id="p2">${playerTwo.name}</span><br> You Won The Game!`;
     }
   }
 
   function draw() {
     const congratsTitle = document.createElement("h1");
-    boardEl.append(congratsTitle);
+    congratsTitle.classList.add("winner");
+    divEl.append(congratsTitle);
 
     congratsTitle.innerHTML = `Its A Draw!`;
+    congratsTitle.setAttribute("style", "text-align: center; color: white;");
   }
 
-  return { removeBoard, congratsPlayer };
+  return { removeBoard, congratsPlayer, draw, createButton };
 })();
+
+// VS Computer (AI) Module

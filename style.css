@@ -178,13 +178,17 @@ body > div {
   background-color: var(--color-three);
 }
 
+.main-menu h1 {
+  font-size: 3rem;
+  margin-bottom: 25px;
+}
+
 .main-menu ul {
   list-style: none;
   width: 100%;
 }
 
 .main-menu ul li {
-  margin-bottom: 55px;
   text-align: center;
 }
 
@@ -222,4 +226,65 @@ body > div {
   outline: none;
   font-family: inherit;
   text-align: center;
+  font-size: 2rem;
+}
+
+/* End Game */
+.end-game {
+  border: 5px solid white;
+  background-color: var(--color-two);
+  border-radius: 25px;
+  width: 500px;
+  height: 450px;
+  padding: 15px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  justify-content: center;
+  line-height: 55px;
+}
+
+.end-game button {
+  border-radius: 15px;
+  width: 50%;
+  margin: 0 auto;
+  border: 3px solid var(--color-white);
+  padding: 7.5px 10px;
+  font-family: inherit;
+  background-color: var(--color-four);
+  cursor: pointer;
+  color: white;
+}
+
+.end-game button:hover {
+  background-color: var(--color-three);
+}
+
+/* Misc */
+button.choose-player {
+  margin-bottom: 10px;
+  padding: 25px;
+  font-size: 25px;
+  width: 275px;
+}
+
+button.choose-computer {
+  padding: 25px;
+  font-size: 25px;
+  width: 275px;
+}
+
+.form-ul,
+.button-start,
+.button-back {
+  display: none;
+}
+
+button.button-start {
+  margin-bottom: 10px;
+}
+
+.hide {
+  display: none;
 }
