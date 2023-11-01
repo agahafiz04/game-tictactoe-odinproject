@@ -201,11 +201,7 @@ body > div {
   color: red;
 }
 
-/* .main-menu ul li:nth-child(2) {
-  background-color: black;
-} */
-
-.main-menu ul li:nth-child(3) h1 {
+.main-menu ul li:nth-child(2) h1 {
   color: rgb(249, 253, 0);
 }
 

@@ -1,5 +1,7 @@
 let playerOne;
 let playerTwo;
+let isComputer;
+let isEnd = false;
 
 // Prototypal Inheritance Object Factory Function
 // Create Player Factory
@@ -32,8 +34,36 @@ const mainMenu = (function () {
   const buttonStart = document.querySelector(".button-start");
   const buttonBack = document.querySelector(".button-back");
 
+  const formUlEl2Label = document.querySelector(".form-2 label");
+  const formUlEl2Input = document.querySelector(".form-2 input");
+  const formUlEl2 = document.querySelector(".form-2");
+
   choosePlayerEl.addEventListener("click", () => {
+    isComputer = false;
+
     formUlEl.setAttribute("style", "display:unset");
+
+    formUlEl2Input.value = "";
+    formUlEl2Input.removeAttribute("disabled", "");
+    formUlEl2Label.textContent = "Player Two";
+
+    buttonStart.setAttribute("style", "display:unset");
+    buttonBack.setAttribute("style", "display:unset");
+
+    choosePlayerEl.setAttribute("style", "display:none");
+    chooseComputerEl.setAttribute("style", "display:none");
+    chooseThePlayerEl.setAttribute("style", "display:none");
+  });
+
+  chooseComputerEl.addEventListener("click", () => {
+    isComputer = true;
+
+    formUlEl.setAttribute("style", "display:unset");
+
+    formUlEl2Input.value = "Computer";
+    formUlEl2Input.setAttribute("disabled", "");
+    formUlEl2Label.textContent = "Computer / AI";
+
     buttonStart.setAttribute("style", "display:unset");
     buttonBack.setAttribute("style", "display:unset");
 
@@ -43,6 +73,8 @@ const mainMenu = (function () {
   });
 
   buttonBack.addEventListener("click", () => {
+    isComputer = false;
+
     formUlEl.setAttribute("style", "display:none");
     buttonStart.setAttribute("style", "display:none");
     buttonBack.setAttribute("style", "display:none");
@@ -60,20 +92,42 @@ const mainMenu = (function () {
 
   buttonEl.addEventListener("click", function () {
     if (inputEl1.value == "" || inputEl2.value == "") {
+      return;
     } else if (!inputEl1.value == "" && !inputEl2.value == "") {
-      createObject();
+      createPlayerObject();
+      startTicTacToe();
+    } else if (
+      !inputEl1.value == "" &&
+      inputEl2.value == "Computer" &&
+      isComputer === true
+    ) {
+      createComputerObject();
+      startTicTacToe();
     }
   });
 
-  function createObject() {
-    playerOne = createPlayerProperties(`${inputEl1.value}`, "X");
-    playerTwo = createPlayerProperties(`${inputEl2.value}`, "O");
+  function createPlayerObject() {
+    {
+      playerOne = createPlayerProperties(`${inputEl1.value}`, "X");
+      playerTwo = createPlayerProperties(`${inputEl2.value}`, "O");
+    }
+  }
 
+  function createComputerObject() {
+    {
+      playerOne = createPlayerProperties(`${inputEl1.value}`, "X");
+      playerTwo = createPlayerProperties(`Computer`, "O");
+    }
+  }
+
+  function startTicTacToe() {
     menuModalEl.remove();
-
     startGame.createBoard();
     infoBoard.createInfoBoard();
+    gameBoard.initialGameBoardArray();
     gameBoard.squareBoxEvent();
+
+    isEnd = false;
   }
 })();
 
@@ -111,6 +165,9 @@ const startGame = (function () {
       createSquareBoxEl.append(createSquareBoxParEl);
       boardEl.append(createSquareBoxEl);
     }
+
+    rowsCount = 0;
+    columnsCount = 0;
   }
 
   function getBoard() {
@@ -130,9 +187,9 @@ const gameBoard = (function () {
 
   let arrayValue = 0;
 
-  initialGameBoardArray();
-
   function initialGameBoardArray() {
+    arrayValue = 0;
+
     for (let i = 0; i < rows; i++) {
       gameBoard[i] = [];
       for (let j = 0; j < columns; j++) {
@@ -141,26 +198,43 @@ const gameBoard = (function () {
     }
   }
 
-  let myElArray = [];
+  const myElArray = [];
 
   function squareBoxEvent() {
     const squareBoxEl = document.querySelectorAll(".square-box");
 
     squareBoxEl.forEach((el) => {
       el.addEventListener("click", function () {
+        setTimeout(() => {
+          console.log("Checking...");
+          if (winCondition.check() == "win" || winCondition.check() == "draw") {
+            console.log("We Have A Result");
+            isEnd = true;
+            return;
+          }
+        }, 10);
+
         myElArray.push(el);
       });
 
       el.addEventListener("click", squareBoxClick);
     });
+  }
 
-    function handlerRemover() {
-      squareBoxEl.forEach((el) => {
-        el.removeEventListener("click", squareBoxClick);
-      });
-    }
+  function handlerRemover() {
+    const squareBoxEl = document.querySelectorAll(".square-box");
 
-    return { handlerRemover };
+    squareBoxEl.forEach((el) => {
+      el.removeEventListener("click", squareBoxClick);
+    });
+  }
+
+  function handlerAdder() {
+    const squareBoxEl = document.querySelectorAll(".square-box");
+
+    squareBoxEl.forEach((el) => {
+      el.addEventListener("click", squareBoxClick);
+    });
   }
 
   function squareBoxClick() {
@@ -172,44 +246,72 @@ const gameBoard = (function () {
 
     renderMark(myElChild, myElColumns, myElRows);
     infoBoard.renderInfoBoard();
-
-    let condition = winCondition.check();
-
-    if (condition == "win" || condition == "draw") {
-      squareBoxEvent().handlerRemover();
-    }
   }
 
   function renderMark(elChild, elColumns, elRows) {
-    if (typeof gameBoard[elRows][elColumns] == "string") {
+    if (!elChild.textContent == "") {
       return;
-    }
-
-    if (elChild.textContent == "") {
+    } else if (elChild.textContent == "") {
       gameBoard[elRows][elColumns] = player.playerTurn().marker;
       elChild.textContent = gameBoard[elRows][elColumns];
 
       if (gameBoard[elRows][elColumns] == "X") {
         elChild.setAttribute("id", "p1");
-      } else {
+      } else if (gameBoard[elRows][elColumns] == "O") {
         elChild.setAttribute("id", "p2");
       }
     }
   }
 
-  return { gameBoard, myElArray, squareBoxEvent, initialGameBoardArray };
+  return {
+    gameBoard,
+    squareBoxEvent,
+    initialGameBoardArray,
+    myElArray,
+    handlerRemover,
+    handlerAdder,
+  };
 })();
 
 // Player Turn Module
 const player = (function () {
-  let currentTurn = 0;
+  let currentTurn = 1;
 
   function playerTurn() {
-    if (currentTurn === 0) {
-      currentTurn = 1;
+    console.log("playerTurn Function Is Running...");
+
+    if (currentTurn === 1 && isComputer === false) {
+      console.log("(Player Mode) Player One");
+      currentTurn = 2;
       return playerOne;
-    } else if (currentTurn === 1) {
-      currentTurn = 0;
+    }
+
+    if (currentTurn === 2 && isComputer === false) {
+      console.log("(Player Mode) Player Two");
+      currentTurn = 1;
+      return playerTwo;
+    }
+
+    if (currentTurn === 1 && isComputer === true) {
+      console.log("(AI / Computer Mode) Player One");
+      currentTurn = 2;
+      gameBoard.handlerRemover();
+
+      setTimeout(() => {
+        console.log(isEnd);
+        if (isEnd) {
+          return;
+        } else if (!isEnd) {
+          computer.computerEvent();
+        }
+      }, 1000);
+
+      return playerOne;
+    }
+
+    if (currentTurn === 2 && isComputer === true) {
+      console.log("(AI / Computer Mode) Computer");
+      currentTurn = 1;
       return playerTwo;
     }
   }
@@ -218,7 +320,11 @@ const player = (function () {
     return currentTurn;
   }
 
-  return { playerTurn, getCurrentTurn };
+  function setCurrentTurn(turn = 1) {
+    currentTurn = turn;
+  }
+
+  return { playerTurn, getCurrentTurn, setCurrentTurn };
 })();
 
 // InfoBoard Turn Module
@@ -234,9 +340,9 @@ const infoBoard = (function () {
   function renderInfoBoard() {
     let currentTurn = player.getCurrentTurn();
 
-    if (currentTurn == 0) {
+    if (currentTurn == 1) {
       newH1El.innerHTML = `Current Turn : <span id="p1">${playerOne.name} (${playerOne.marker})</span>`;
-    } else if (currentTurn == 1) {
+    } else if (currentTurn == 2) {
       newH1El.innerHTML = `Current Turn : <span id="p2">${playerTwo.name} (${playerTwo.marker})</span>`;
     }
   }
@@ -248,8 +354,6 @@ const infoBoard = (function () {
 const winCondition = (function () {
   let boardArray = gameBoard.gameBoard;
   const boardCells = startGame.getBoard();
-
-  let theWinner;
 
   const horizontalCheck = () => {
     const horizontalCheckX = (el) => el === `${playerOne.marker}`;
@@ -328,15 +432,32 @@ const winCondition = (function () {
 
   const check = () => {
     if (horizontalCheck() || diagonalCheck() || verticalCheck()) {
-      endGame.removeBoard();
-      endGame.congratsPlayer();
-      endGame.createButton();
+      gameBoard.handlerRemover();
+
+      setTimeout(() => {
+        endGame.removeBoard();
+        endGame.congratsPlayer();
+      }, 1500);
+
+      setTimeout(() => {
+        endGame.createButton();
+      }, 5000);
+
+      gameBoard.initialGameBoardArray();
       return "win";
     } else if (!initialCheck()) {
-      endGame.removeBoard();
-      endGame.draw();
-      endGame.createButton();
+      gameBoard.handlerRemover();
 
+      setTimeout(() => {
+        endGame.removeBoard();
+        endGame.draw();
+      }, 1500);
+
+      setTimeout(() => {
+        endGame.createButton();
+      }, 5000);
+
+      gameBoard.initialGameBoardArray();
       return "draw";
     } else {
       return "init";
@@ -347,11 +468,7 @@ const winCondition = (function () {
     return theWinner;
   };
 
-  const setWinner = () => {
-    theWinner = null;
-  };
-
-  return { check, getWinner, setWinner };
+  return { check, getWinner };
 })();
 
 //  EndGame Module
@@ -365,23 +482,20 @@ const endGame = (function () {
   const scoreBoard = document.querySelector(".score-board");
 
   function removeBoard() {
-    // while (boardEl.firstChild) {
-    //    boardEl.removeChild(boardEl.firstChild);
-    // }
+    gameBoard.myElArray = [];
+
     infoBoardEl.classList.add("hide");
     ticTacBoard.classList.add("hide");
     scoreBoard.classList.add("hide");
 
-    gameBoard.gameBoard = [];
-    gameBoard.initialGameBoardArray();
-    gameBoard.myElArray = [];
+    while (ticTacBoard.firstChild) {
+      ticTacBoard.removeChild(ticTacBoard.firstChild);
+    }
 
     boardEl.append(divEl);
   }
 
   function createButton() {
-    winCondition.setWinner();
-
     const buttonEl1 = document.createElement("button");
     const buttonEl2 = document.createElement("button");
 
@@ -394,6 +508,15 @@ const endGame = (function () {
     divEl.append(buttonEl1, buttonEl2);
 
     buttonEl1.addEventListener("click", () => {
+      console.log("Play Again");
+
+      player.setCurrentTurn(1);
+      infoBoard.renderInfoBoard();
+      startGame.createBoard();
+      gameBoard.initialGameBoardArray();
+      gameBoard.squareBoxEvent();
+      isEnd = false;
+
       const squareBox = document.querySelectorAll(".square-box");
 
       squareBox.forEach((item) => {
@@ -406,13 +529,9 @@ const endGame = (function () {
       ticTacBoard.classList.remove("hide");
       scoreBoard.classList.remove("hide");
 
-      infoBoard.createInfoBoard();
-      gameBoard.squareBoxEvent();
-
       const winnerEl = document.querySelector(".winner");
 
       winnerEl.remove();
-
       buttonEl1.remove();
       buttonEl2.remove();
       divEl.remove();
@@ -448,3 +567,48 @@ const endGame = (function () {
 })();
 
 // VS Computer (AI) Module
+const computer = (function () {
+  let myTempArray = [];
+
+  function computerEvent() {
+    const squareBoxEl = document.querySelectorAll(".square-box");
+
+    squareBoxEl.forEach((el) => {
+      myTempArray.push(el);
+    });
+
+    console.log(myTempArray);
+
+    let random = Math.floor(Math.random() * myTempArray.length);
+    let randomElement = myTempArray[random];
+
+    function randomize() {
+      random = Math.floor(Math.random() * myTempArray.length);
+      randomElement = myTempArray[random];
+      console.log(randomElement);
+    }
+
+    if (!randomElement) {
+      console.log("No Slot / Is Ended");
+      return;
+    }
+
+    if (!randomElement.firstChild.textContent == "") {
+      console.log("Same Square");
+      while (!randomElement.firstChild.textContent == "") {
+        console.log("Computer Rendering While Loop");
+        randomize();
+      }
+      gameBoard.handlerAdder();
+      randomElement.click();
+    } else if (randomElement.firstChild.textContent == "") {
+      console.log("Computer Rendering Auto");
+      gameBoard.handlerAdder();
+      randomElement.click();
+    }
+
+    myTempArray = [];
+  }
+
+  return { computerEvent };
+})();
